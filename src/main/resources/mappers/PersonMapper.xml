@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+        'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace='com.example.identifier.mappers.PersonMapper'>
+
+    <select id='search' parameterType='com.example.identifier.pojo.FilterRequest' resultMap='personMap'>
+        SELECT p.id as personId, p.*, id.id as dId, id.* FROM  public.person p
+        LEFT JOIN public.identity_document id ON id.person_id = p.id
+        WHERE 1=1
+        <if test="firstName != null">
+            <bind name="firstName" value="'%' + firstName + '%'" />
+            AND p.first_name LIKE #{firstName}
+        </if>
+        <if test="lastName != null">
+            <bind name="lastName" value="'%' + lastName + '%'" />
+            AND p.last_name LIKE #{lastName}
+        </if>
+        <if test="patronymic != null">
+            <bind name="patronymic" value="'%' + patronymic + '%'" />
+            AND p.patronymic LIKE #{patronymic}
+        </if>
+        <if test="birthDate != null">
+            AND p.birth_date = #{birthDate}
+        </if>
+        <if test="documentNumber != null">
+            AND id.document_number = #{documentNumber}
+        </if>
+    </select>
+    <resultMap id="personMap" type="Person">
+        <id property="id" column="personId" />
+        <result property="firstName" column="first_name" />
+        <result property="lastName" column="last_name" />
+        <result property="patronymic" column="patronymic" />
+        <result property="birthDate" column="birth_date" />
+        <result property="gender" column="gender" />
+        <result property="address" column="address" />
+        <collection property="identityDocuments" ofType="IdentityDocument">
+            <id property="id" column="dId" />
+            <result property="documentNumber" column="document_number" />
+            <result property="documentType" column="document_type" />
+            <result property="issuingAuthority" column="issuing_authority" />
+            <result property="issueDate" column="issue_date" />
+            <result property="expirationDate" column="expiration_date" />
+        </collection>
+    </resultMap>
+</mapper>
